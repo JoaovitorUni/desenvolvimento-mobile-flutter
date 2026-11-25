@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cook_roulette/pages/home.dart';
 import 'package:cook_roulette/pages/roulette.dart';
+import 'package:cook_roulette/recipe/services.dart';
 
 void main() {
   runApp(const MaterialApp(title: 'Cook Roulette', home: Main()));
@@ -17,6 +18,18 @@ class _Main extends State<Main> {
   int _currentPage = 0;
 
   final List<Widget> _pages = const [HomePage(), RoulettePage()];
+  final RecipeService _recipeService = RecipeService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRecipes();
+  }
+
+  Future<void> _loadRecipes() async {
+    final recipes = await _recipeService.getRecipes();
+    recipes.forEach((r) => print(r.name));
+  }
 
   @override
   Widget build(BuildContext context) {
