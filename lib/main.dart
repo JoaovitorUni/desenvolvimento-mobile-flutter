@@ -1,9 +1,9 @@
-import 'package:cook_roulette/pages/home.dart';
-import 'package:cook_roulette/pages/roulette.dart';
+import 'package:flutter/material.dart';
+import 'package:cook_roulette/components/app_pages_stack.dart';
+import 'package:cook_roulette/components/app_navigation_bar.dart';
 import 'package:cook_roulette/recipe/dtos.dart';
 import 'package:cook_roulette/recipe/repositories.dart';
 import 'package:cook_roulette/recipe/services.dart';
-import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MaterialApp(title: 'Cook Roulette', home: Main()));
@@ -63,42 +63,20 @@ class _MainState extends State<Main> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cook Roulette')),
-      body: IndexedStack(
-        index: _currentPage,
-        children: [
-          HomePage(
-            recipes: _recipes,
-            isLoading: _isLoading,
-            errorMessage: _errorMessage,
-            onRetry: _loadRecipes,
-          ),
-          RoulettePage(
-            recipes: _recipes,
-            isLoading: _isLoading,
-            errorMessage: _errorMessage,
-            onRetry: _loadRecipes,
-          ),
-        ],
+      body: AppPagesStack(
+        currentIndex: _currentPage,
+        recipes: _recipes,
+        isLoading: _isLoading,
+        errorMessage: _errorMessage,
+        onRetry: _loadRecipes,
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentPage,
+      bottomNavigationBar: AppNavigationBar(
+        currentIndex: _currentPage,
         onDestinationSelected: (int index) {
           setState(() {
             _currentPage = index;
           });
         },
-        destinations: const [
-          NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            selectedIcon: Icon(Icons.casino),
-            icon: Icon(Icons.casino_outlined),
-            label: 'Roleta',
-          ),
-        ],
       ),
     );
   }
