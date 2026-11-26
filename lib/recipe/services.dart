@@ -1,11 +1,14 @@
+import 'dart:math';
 import 'package:cook_roulette/recipe/dtos.dart';
 import 'package:cook_roulette/recipe/repositories.dart';
 
 class RecipeService {
   final RecipeRepository _repository;
+  final Random _random;
 
-  RecipeService({RecipeRepository? repository})
-      : _repository = repository ?? RecipeRepository();
+  RecipeService({RecipeRepository? repository, Random? random})
+      : _repository = repository ?? RecipeRepository(),
+        _random = random ?? Random();
 
   Future<List<RecipeDto>> getRecipes() {
     return _repository.fetchAll();
@@ -13,6 +16,13 @@ class RecipeService {
 
   Future<RecipeDetailDto> getRecipeDetails(int id) {
     return _repository.fetchById(id);
+  }
+
+  Future<RandomRecipeDto> getRandomRecipe() async {
+    final randomId = _random.nextInt(50) + 1;
+    final randomRecipe = await _repository.fetchRandomById(randomId);
+
+    return randomRecipe;
   }
 
   Future<List<RecipeDto>> searchRecipes(String rawQuery) {

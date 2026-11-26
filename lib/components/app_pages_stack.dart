@@ -36,6 +36,7 @@ class AppPagesStack extends StatelessWidget {
           onRetry: onRetry,
         ),
         RoulettePage(
+          recipeService: recipeService,
           recipes: recipes,
           isLoading: isLoading,
           errorMessage: errorMessage,
