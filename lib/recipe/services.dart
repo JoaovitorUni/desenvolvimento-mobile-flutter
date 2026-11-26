@@ -5,7 +5,7 @@ class RecipeService {
   final RecipeRepository _repository;
 
   RecipeService({RecipeRepository? repository})
-      : _repository = repository ?? RecipeRepository();
+    : _repository = repository ?? RecipeRepository();
 
   Future<List<RecipeDto>> getRecipes() {
     return _repository.fetchAll();
@@ -17,5 +17,19 @@ class RecipeService {
       throw ArgumentError('Informe o nome de uma receita para pesquisar.');
     }
     return _repository.searchByName(sanitizedQuery);
+  }
+
+  Map<String, List<RecipeDto>> groupByCuisine(List<RecipeDto> recipes) {
+    final Map<String, List<RecipeDto>> grouped = {};
+
+    for (final recipe in recipes) {
+      final cuisine = recipe.cuisine.trim().isEmpty ? 'Outras' : recipe.cuisine;
+      grouped.putIfAbsent(cuisine, () => []).add(recipe);
+    }
+
+    final sortedEntries = grouped.entries.toList()
+      ..sort((a, b) => b.value.length.compareTo(a.value.length));
+
+    return Map.fromEntries(sortedEntries);
   }
 }

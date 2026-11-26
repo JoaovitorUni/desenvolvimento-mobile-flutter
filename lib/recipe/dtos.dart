@@ -2,6 +2,7 @@ class RecipeDto {
   final int id;
   final String name;
   final String image;
+  final String cuisine;
   final int prepTimeMinutes;
   final int cookTimeMinutes;
   final double rating;
@@ -10,6 +11,7 @@ class RecipeDto {
     required this.id,
     required this.name,
     required this.image,
+    required this.cuisine,
     required this.prepTimeMinutes,
     required this.cookTimeMinutes,
     required this.rating,
@@ -26,6 +28,7 @@ class RecipeDto {
       id: json['id'] as int,
       name: json['name'] as String,
       image: json['image']?.toString() ?? '',
+      cuisine: json['cuisine']?.toString() ?? '',
       prepTimeMinutes: (json['prepTimeMinutes'] as num?)?.toInt() ?? 0,
       cookTimeMinutes: (json['cookTimeMinutes'] as num?)?.toInt() ?? 0,
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,

@@ -25,6 +25,7 @@ class _MainState extends State<Main> {
   bool _isLoading = false;
   String? _errorMessage;
 
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +65,7 @@ class _MainState extends State<Main> {
     return Scaffold(
       appBar: AppBar(title: const Text('Cook Roulette')),
       body: AppPagesStack(
+        recipeService: _recipeService,
         currentIndex: _currentPage,
         recipes: _recipes,
         isLoading: _isLoading,
