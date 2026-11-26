@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cook_roulette/components/app_pages_stack.dart';
 import 'package:cook_roulette/components/app_navigation_bar.dart';
+import 'package:cook_roulette/theme/app_theme.dart';
 import 'package:cook_roulette/recipe/dtos.dart';
 import 'package:cook_roulette/recipe/repositories.dart';
 import 'package:cook_roulette/recipe/services.dart';
 
 void main() {
-  runApp(const MaterialApp(title: 'Cook Roulette', home: Main()));
+  runApp(
+    MaterialApp(
+      title: 'Cook Roulette',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light,
+      home: Main(),
+    ),
+  );
 }
 
 class Main extends StatefulWidget {
@@ -24,7 +32,6 @@ class _MainState extends State<Main> {
   List<RecipeDto> _recipes = [];
   bool _isLoading = false;
   String? _errorMessage;
-
 
   @override
   void initState() {

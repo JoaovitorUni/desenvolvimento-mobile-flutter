@@ -5,16 +5,20 @@ class RecipeService {
   final RecipeRepository _repository;
 
   RecipeService({RecipeRepository? repository})
-    : _repository = repository ?? RecipeRepository();
+      : _repository = repository ?? RecipeRepository();
 
   Future<List<RecipeDto>> getRecipes() {
     return _repository.fetchAll();
   }
 
+  Future<RecipeDetailDto> getRecipeDetails(int id) {
+    return _repository.fetchById(id);
+  }
+
   Future<List<RecipeDto>> searchRecipes(String rawQuery) {
     final sanitizedQuery = rawQuery.trim();
     if (sanitizedQuery.isEmpty) {
-      throw ArgumentError('Informe o nome de uma receita para pesquisar.');
+      throw ArgumentError('Please enter a recipe name to search.');
     }
     return _repository.searchByName(sanitizedQuery);
   }
@@ -23,7 +27,7 @@ class RecipeService {
     final Map<String, List<RecipeDto>> grouped = {};
 
     for (final recipe in recipes) {
-      final cuisine = recipe.cuisine.trim().isEmpty ? 'Outras' : recipe.cuisine;
+      final cuisine = recipe.cuisine.trim().isEmpty ? 'Other' : recipe.cuisine;
       grouped.putIfAbsent(cuisine, () => []).add(recipe);
     }
 
