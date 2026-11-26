@@ -6,8 +6,9 @@ class RecipeDto {
   final int prepTimeMinutes;
   final int cookTimeMinutes;
   final double rating;
+  bool isFavorite;
 
-  const RecipeDto({
+  RecipeDto({
     required this.id,
     required this.name,
     required this.image,
@@ -15,6 +16,7 @@ class RecipeDto {
     required this.prepTimeMinutes,
     required this.cookTimeMinutes,
     required this.rating,
+    this.isFavorite = false,
   });
 
   int get totalTimeMinutes => prepTimeMinutes + cookTimeMinutes;
