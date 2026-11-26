@@ -1,4 +1,5 @@
 import 'package:cook_roulette/pages/recipe/detail.dart';
+import 'package:cook_roulette/recipe/repositories.dart';
 import 'package:cook_roulette/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cook_roulette/components/cuisine_section.dart';
@@ -29,6 +30,9 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
   String? _searchQuery;
   String? _searchWarning;
+  String? _searchError;
+  bool _isSearching = false;
+  List<RecipeDto>? _searchResults;
 
   @override
   void dispose() {
@@ -41,23 +45,73 @@ class _HomePageState extends State<HomePage> {
     if (query.isEmpty) {
       setState(() {
         _searchQuery = null;
+        _searchResults = null;
+        _searchError = null;
         _searchWarning = 'Please enter a recipe name to search';
       });
     } else {
+      _performSearch(query);
+    }
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    setState(() {
+      _searchQuery = null;
+      _searchResults = null;
+      _searchWarning = null;
+      _searchError = null;
+    });
+  }
+
+  Future<void> _performSearch(String query) async {
+    setState(() {
+      _isSearching = true;
+      _searchError = null;
+      _searchWarning = null;
+      _searchQuery = query;
+    });
+
+    try {
+      final results = await widget.recipeService.searchRecipes(query);
+
+      for (final result in results) {
+        final matchIndex = widget.recipes.indexWhere((r) => r.id == result.id);
+        if (matchIndex != -1) {
+          result.isFavorite = widget.recipes[matchIndex].isFavorite;
+        }
+      }
+
+      if (!mounted) return;
       setState(() {
-        _searchQuery = query;
-        _searchWarning = null;
+        _searchResults = results;
       });
+    } on RecipeRepositoryException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _searchError = e.message;
+      });
+    } on ArgumentError catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _searchWarning = e.message;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _searchError = 'An unexpected error occurred while searching.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSearching = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final sections = widget.recipeService
-        .groupByCuisine(widget.recipes)
-        .entries
-        .toList();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -73,11 +127,11 @@ class _HomePageState extends State<HomePage> {
                     TextField(
                       controller: _searchController,
                       onChanged: (_) {
-                        if (_searchWarning != null) {
-                          setState(() {
+                        setState(() {
+                          if (_searchWarning != null) {
                             _searchWarning = null;
-                          });
-                        }
+                          }
+                        });
                       },
                       decoration: InputDecoration(
                         hintText: 'Search recipes...',
@@ -89,6 +143,15 @@ class _HomePageState extends State<HomePage> {
                           horizontal: 16,
                           vertical: 12,
                         ),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: AppColors.textSecondary,
+                                ),
+                                onPressed: _clearSearch,
+                              )
+                            : null,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
@@ -154,7 +217,10 @@ class _HomePageState extends State<HomePage> {
           thickness: 1,
           color: AppColors.border.withValues(alpha: 0.4),
         ),
-        if (_searchQuery != null && _searchQuery!.isNotEmpty)
+        if (_searchQuery != null &&
+            _searchQuery!.isNotEmpty &&
+            !_isSearching &&
+            _searchError == null)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
             child: Text(
@@ -166,34 +232,132 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 16),
-            itemCount: sections.length,
-            itemBuilder: (context, index) {
-              final entry = sections[index];
-              return CuisineSection(
-                cuisine: entry.key,
-                recipes: entry.value,
-                onRecipeTap: (recipe) async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => DetailPage(
-                        recipeService: widget.recipeService,
-                        recipe: recipe,
-                      ),
-                    ),
-                  );
-
-                  if (mounted) {
-                    setState(() {});
-                  }
-                },
-              );
-            },
-          ),
+          child: _buildBody(context),
         ),
       ],
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    if (_isSearching) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+
+    if (_searchError != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _searchError!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () {
+                  if (_searchQuery != null) {
+                    _performSearch(_searchQuery!);
+                  }
+                },
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try Again'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (widget.isLoading && _searchResults == null) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primary),
+      );
+    }
+
+    if (widget.errorMessage != null && _searchResults == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                widget.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: widget.onRetry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try Again'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final recipesToDisplay = _searchResults ?? widget.recipes;
+
+    if (_searchResults != null && _searchResults!.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 56,
+              color: AppColors.textSecondary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No recipes found matching "$_searchQuery"',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final sections = widget.recipeService
+        .groupByCuisine(recipesToDisplay)
+        .entries
+        .toList();
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 16),
+      itemCount: sections.length,
+      itemBuilder: (context, index) {
+        final entry = sections[index];
+        return CuisineSection(
+          cuisine: entry.key,
+          recipes: entry.value,
+          onRecipeTap: (recipe) async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DetailPage(
+                  recipeService: widget.recipeService,
+                  recipe: recipe,
+                ),
+              ),
+            );
+
+            if (mounted) {
+              setState(() {});
+            }
+          },
+        );
+      },
     );
   }
 }
