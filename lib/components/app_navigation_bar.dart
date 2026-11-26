@@ -24,7 +24,7 @@ class AppNavigationBar extends StatelessWidget {
         NavigationDestination(
           selectedIcon: Icon(Icons.casino),
           icon: Icon(Icons.casino_outlined),
-          label: 'Roleta',
+          label: 'Roulette',
         ),
       ],
     );
