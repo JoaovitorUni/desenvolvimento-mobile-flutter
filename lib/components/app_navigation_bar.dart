@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cook_roulette/theme/app_theme.dart';
 
 class AppNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -12,21 +13,28 @@ class AppNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: onDestinationSelected,
-      destinations: const [
-        NavigationDestination(
-          selectedIcon: Icon(Icons.home),
-          icon: Icon(Icons.home_outlined),
-          label: 'Home',
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(color: AppColors.border, width: 0.8),
         ),
-        NavigationDestination(
-          selectedIcon: Icon(Icons.casino),
-          icon: Icon(Icons.casino_outlined),
-          label: 'Roulette',
-        ),
-      ],
+      ),
+      child: NavigationBar(
+        selectedIndex: currentIndex,
+        onDestinationSelected: onDestinationSelected,
+        destinations: const [
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.casino),
+            icon: Icon(Icons.casino_outlined),
+            label: 'Roulette',
+          ),
+        ],
+      )
     );
   }
 }

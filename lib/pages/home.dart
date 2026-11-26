@@ -1,3 +1,4 @@
+import 'package:cook_roulette/pages/recipe/detail.dart';
 import 'package:flutter/material.dart';
 import 'package:cook_roulette/components/cuisine_section.dart';
 import 'package:cook_roulette/recipe/dtos.dart';
@@ -41,7 +42,15 @@ class _HomePageState extends State<HomePage> {
             cuisine: entry.key,
             recipes: entry.value,
             onRecipeTap: (recipe) {
-              // TODO: Navegação
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DetailPage(
+                    recipeService: widget.recipeService,
+                    recipe: recipe,
+                  ),
+                ),
+              );
             },
           );
         },

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:cook_roulette/recipe/dtos.dart';
 
@@ -20,10 +21,52 @@ class RecipeRepository {
     return _getRecipesFromUri(uri);
   }
 
+  Future<RecipeDetailDto> fetchById(int id) async {
+    final uri = Uri.parse('$_baseUrl/$id');
+
+    try {
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 404) {
+        throw const RecipeRepositoryException('Recipe not found.');
+      }
+
+      if (response.statusCode != 200) {
+        throw RecipeRepositoryException(
+          'Unable to load recipe details (Error ${response.statusCode}).',
+        );
+      }
+
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic>) {
+        throw const FormatException('Unexpected API response.');
+      }
+
+      return RecipeDetailDto.fromJson(decoded);
+    } on RecipeRepositoryException {
+      rethrow;
+    } on TimeoutException {
+      throw const RecipeRepositoryException(
+        'Request timed out. Check your connection and try again.',
+      );
+    } on SocketException {
+      throw const RecipeRepositoryException(
+        'No internet connection. Please try again.',
+      );
+    } on http.ClientException {
+      throw const RecipeRepositoryException(
+        'Failed to communicate with the server. Please try again.',
+      );
+    } on FormatException {
+      throw const RecipeRepositoryException(
+        'Recipe data arrived in an invalid format.',
+      );
+    }
+  }
+
   Future<List<RecipeDto>> searchByName(String query) async {
-    final uri = Uri.parse('$_baseUrl/search').replace(
-      queryParameters: {'q': query},
-    );
+    final uri = Uri.parse('$_baseUrl/search')
+        .replace(queryParameters: {'q': query});
     return _getRecipesFromUri(uri);
   }
 
@@ -33,14 +76,14 @@ class RecipeRepository {
 
       if (response.statusCode != 200) {
         throw RecipeRepositoryException(
-          'Falha na comunicação com o servidor (Erro ${response.statusCode}).',
+          'Failed to communicate with the server (Error ${response.statusCode}).',
         );
       }
 
       final decoded = jsonDecode(response.body);
       if (decoded is! Map<String, dynamic> || decoded['recipes'] is! List) {
         throw const RecipeRepositoryException(
-          'A resposta do servidor veio em um formato inesperado.',
+          'The server response arrived in an unexpected format.',
         );
       }
 
@@ -50,21 +93,21 @@ class RecipeRepository {
           .toList();
     } on SocketException {
       throw const RecipeRepositoryException(
-        'Sem conexão com a internet. Verifique sua rede e tente novamente.',
+        'No internet connection. Check your network and try again.',
       );
     } on TimeoutException {
       throw const RecipeRepositoryException(
-        'O servidor demorou muito para responder. Tente novamente.',
+        'The server took too long to respond. Please try again.',
       );
     } on FormatException {
       throw const RecipeRepositoryException(
-        'Não foi possível processar os dados recebidos da API.',
+        'Unable to process data received from the API.',
       );
     } on RecipeRepositoryException {
       rethrow;
     } catch (_) {
       throw const RecipeRepositoryException(
-        'Ocorreu um erro inesperado ao buscar receitas.',
+        'An unexpected error occurred while fetching recipes.',
       );
     }
   }

@@ -35,3 +35,30 @@ class RecipeDto {
     );
   }
 }
+
+class RecipeDetailDto {
+  final int servings;
+  final String difficulty;
+  final List<String> ingredients;
+  final List<String> instructions;
+
+  const RecipeDetailDto({
+    required this.servings,
+    required this.difficulty,
+    required this.ingredients,
+    required this.instructions,
+  });
+
+  factory RecipeDetailDto.fromJson(Map<String, dynamic> json) {
+    return RecipeDetailDto(
+      servings: (json['servings'] as num?)?.toInt() ?? 0,
+      difficulty: json['difficulty']?.toString() ?? '-',
+      ingredients: (json['ingredients'] as List<dynamic>? ?? [])
+          .map((item) => item.toString())
+          .toList(),
+      instructions: (json['instructions'] as List<dynamic>? ?? [])
+          .map((item) => item.toString())
+          .toList(),
+    );
+  }
+}
