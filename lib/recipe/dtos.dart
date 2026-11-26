@@ -64,3 +64,37 @@ class RecipeDetailDto {
     );
   }
 }
+
+class RandomRecipeDto extends RecipeDto {
+  final int servings;
+  final String difficulty;
+
+  RandomRecipeDto({
+    required super.id,
+    required super.name,
+    required super.image,
+    required super.cuisine,
+    required super.prepTimeMinutes,
+    required super.cookTimeMinutes,
+    required super.rating,
+    super.isFavorite = false,
+    required this.servings,
+    required this.difficulty,
+  });
+
+  factory RandomRecipeDto.fromJson(Map<String, dynamic> json) {
+    final base = RecipeDto.fromJson(json);
+    return RandomRecipeDto(
+      id: base.id,
+      name: base.name,
+      image: base.image,
+      cuisine: base.cuisine,
+      prepTimeMinutes: base.prepTimeMinutes,
+      cookTimeMinutes: base.cookTimeMinutes,
+      rating: base.rating,
+      isFavorite: base.isFavorite,
+      servings: (json['servings'] as num?)?.toInt() ?? 0,
+      difficulty: json['difficulty']?.toString() ?? '-',
+    );
+  }
+}
