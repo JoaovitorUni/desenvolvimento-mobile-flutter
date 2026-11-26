@@ -102,7 +102,7 @@ class _DetailPageState extends State<DetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 1. Área da imagem principal ocupando todo o container
+              // 1. Main image area occupying the entire container
               Container(
                 width: double.infinity,
                 height: 220,
@@ -128,7 +128,7 @@ class _DetailPageState extends State<DetailPage> {
 
               const SizedBox(height: 16),
 
-              // 2. Título e informações secundárias
+              // 2. Title and secondary information
               Text(
                 recipe.name,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -145,7 +145,7 @@ class _DetailPageState extends State<DetailPage> {
 
               const SizedBox(height: 16),
 
-              // 3. Cartões de informações rápidas + botão de favorito
+              // 3. Quick info cards + favorite button
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

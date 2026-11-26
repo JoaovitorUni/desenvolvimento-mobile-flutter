@@ -23,7 +23,7 @@ class RecipeDto {
 
   factory RecipeDto.fromJson(Map<String, dynamic> json) {
     if (json['id'] is! int || json['name'] is! String) {
-      throw const FormatException('Estrutura de receita incompatível.');
+      throw const FormatException('Incompatible recipe structure.');
     }
 
     return RecipeDto(
