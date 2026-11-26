@@ -33,6 +33,11 @@ class AppNavigationBar extends StatelessWidget {
             icon: Icon(Icons.casino_outlined),
             label: 'Roulette',
           ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.favorite),
+            icon: Icon(Icons.favorite_border),
+            label: 'Favorites',
+          ),
         ],
       )
     );

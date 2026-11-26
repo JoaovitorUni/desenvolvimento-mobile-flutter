@@ -3,6 +3,7 @@ import 'package:cook_roulette/recipe/dtos.dart';
 import 'package:cook_roulette/recipe/services.dart';
 import 'package:cook_roulette/pages/home.dart';
 import 'package:cook_roulette/pages/roulette.dart';
+import 'package:cook_roulette/pages/recipe/favorites.dart';
 
 class AppPagesStack extends StatelessWidget {
   final RecipeService recipeService;
@@ -35,6 +36,13 @@ class AppPagesStack extends StatelessWidget {
           onRetry: onRetry,
         ),
         RoulettePage(
+          recipes: recipes,
+          isLoading: isLoading,
+          errorMessage: errorMessage,
+          onRetry: onRetry,
+        ),
+        FavoritesPage(
+          recipeService: recipeService,
           recipes: recipes,
           isLoading: isLoading,
           errorMessage: errorMessage,

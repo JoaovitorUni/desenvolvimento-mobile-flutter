@@ -25,7 +25,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   @override
   Widget build(BuildContext context) {
     final sections = widget.recipeService
@@ -34,26 +33,30 @@ class _HomePageState extends State<HomePage> {
         .toList();
 
     return ListView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        itemCount: sections.length,
-        itemBuilder: (context, index) {
-          final entry = sections[index];
-          return CuisineSection(
-            cuisine: entry.key,
-            recipes: entry.value,
-            onRecipeTap: (recipe) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => DetailPage(
-                    recipeService: widget.recipeService,
-                    recipe: recipe,
-                  ),
+      padding: const EdgeInsets.only(bottom: 16),
+      itemCount: sections.length,
+      itemBuilder: (context, index) {
+        final entry = sections[index];
+        return CuisineSection(
+          cuisine: entry.key,
+          recipes: entry.value,
+          onRecipeTap: (recipe) async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DetailPage(
+                  recipeService: widget.recipeService,
+                  recipe: recipe,
                 ),
-              );
-            },
-          );
-        },
+              ),
+            );
+
+            if (mounted) {
+              setState(() {});
+            }
+          },
+        );
+      },
     );
   }
 }
