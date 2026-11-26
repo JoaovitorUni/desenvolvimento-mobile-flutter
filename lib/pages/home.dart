@@ -75,10 +75,10 @@ class _HomePageState extends State<HomePage> {
     try {
       final results = await widget.recipeService.searchRecipes(query);
 
-      for (final result in results) {
-        final matchIndex = widget.recipes.indexWhere((r) => r.id == result.id);
+      for (int i = 0; i < results.length; i++) {
+        final matchIndex = widget.recipes.indexWhere((r) => r.id == results[i].id);
         if (matchIndex != -1) {
-          result.isFavorite = widget.recipes[matchIndex].isFavorite;
+          results[i] = widget.recipes[matchIndex];
         }
       }
 
@@ -353,6 +353,12 @@ class _HomePageState extends State<HomePage> {
             );
 
             if (mounted) {
+              final mainIndex = widget.recipes.indexWhere((r) => r.id == recipe.id);
+              if (mainIndex != -1) {
+                widget.recipes[mainIndex].isFavorite = recipe.isFavorite;
+              } else if (recipe.isFavorite) {
+                widget.recipes.add(recipe);
+              }
               setState(() {});
             }
           },
